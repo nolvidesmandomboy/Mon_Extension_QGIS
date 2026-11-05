@@ -28,6 +28,8 @@ from qgis.PyQt.QtWidgets import QAction, QComboBox
 from qgis.core import (
     QgsProject,
     QgsVectorLayer,
+    QgsMapLayer,
+    QgsWkbTypes
 )
 
 # Import the code for the dialog
@@ -192,9 +194,11 @@ class ExtensionDeNolvides:
             self.first_start = False
             self.dlg = ExtensionDeNolvidesDialog()
 
-        layers = QgsProject.instance().mapLayers()
-        for layer in layers :
-            self.dlg.comboBox.addItem(str(layer))
+        for layers in QgsProject.instance().mapLayers().values() :
+            if layers.type() == QgsMapLayer.VectorLayer:
+                if layers.geometryType() == 0:
+                    self.dlg.comboBox.addItem(layers.name())
+        
         
         # show the dialog
         self.dlg.show()
