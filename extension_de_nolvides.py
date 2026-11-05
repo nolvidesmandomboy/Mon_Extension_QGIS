@@ -24,7 +24,11 @@
 from qgis.PyQt.QtCore import QLocale, QTranslator, QCoreApplication
 from qgis.core import QgsSettings
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QComboBox
+from qgis.core import (
+    QgsProject,
+    QgsVectorLayer,
+)
 
 # Import the code for the dialog
 from .extension_de_nolvides_dialog import ExtensionDeNolvidesDialog
@@ -188,6 +192,10 @@ class ExtensionDeNolvides:
             self.first_start = False
             self.dlg = ExtensionDeNolvidesDialog()
 
+        layers = QgsProject.instance().mapLayers()
+        for layer in layers :
+            self.dlg.comboBox.addItem(str(layer))
+        
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
