@@ -36,6 +36,7 @@ from qgis.core import (
     QgsGeometry
 
 )
+import requests
 
 from qgis.gui import QgsMapToolEmitPoint
 
@@ -200,13 +201,19 @@ class ExtensionDeNolvides:
         transform = QgsCoordinateTransform(source_crs, dest_crs, QgsProject.instance())
         
         point_dest = transform.transform(lePointXY)
-        print(point_dest)
         longitude = round(point_dest[0],5)
         latitude = round(point_dest [1],5)
         self.dlg.label_3.setText(f"Longitude : {longitude}")
         
         self.dlg.label_4.setText(f"Latitude : {latitude}")
 
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={latitude}&lon={longitude}"
+        infos = requests.get(url)
+        data = infos.json()
+        print(data)
+        adresse = None
+        
+        self.dlg.label_5.setText(f"adresse : {adresse}")
 
     def run(self):
         """Run method that performs all the real work"""
