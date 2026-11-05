@@ -29,8 +29,14 @@ from qgis.core import (
     QgsProject,
     QgsVectorLayer,
     QgsMapLayer,
-    QgsWkbTypes
+    QgsWkbTypes,
+    QgsCoordinateReferenceSystem,
+    QgsPointXY,
+    QgsGeometry
+
 )
+
+from qgis.gui import QgsMapToolEmitPoint
 
 # Import the code for the dialog
 from .extension_de_nolvides_dialog import ExtensionDeNolvidesDialog
@@ -50,6 +56,8 @@ class ExtensionDeNolvides:
         """
         # Save reference to the QGIS interface
         self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+        self.pointTool = QgsMapToolEmitPoint(self.canvas)
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -184,6 +192,14 @@ class ExtensionDeNolvides:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def displayPoint(self, lePointXY):
+        longitude = lePointXY[0]
+        latitude = lePointXY [1]
+
+        self.dlg.label_3.setText(f"Longitude : {longitude}")
+        
+        self.dlg.label_4.setText(f"Latitude : {latitude}")
+
 
     def run(self):
         """Run method that performs all the real work"""
@@ -198,6 +214,11 @@ class ExtensionDeNolvides:
             if layers.type() == QgsMapLayer.VectorLayer:
                 if layers.geometryType() == 0:
                     self.dlg.comboBox.addItem(layers.name())
+
+        self.canvas.setMapTool(self.pointTool)
+        self.pointTool.canvasClicked.connect(self.displayPoint)
+
+        
         
         
         # show the dialog
