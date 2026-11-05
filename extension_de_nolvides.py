@@ -31,6 +31,7 @@ from qgis.core import (
     QgsMapLayer,
     QgsWkbTypes,
     QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
     QgsPointXY,
     QgsGeometry
 
@@ -193,9 +194,15 @@ class ExtensionDeNolvides:
             self.iface.removeToolBarIcon(action)
 
     def displayPoint(self, lePointXY):
-        longitude = lePointXY[0]
-        latitude = lePointXY [1]
-
+        source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
+        dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
+        
+        transform = QgsCoordinateTransform(source_crs, dest_crs, QgsProject.instance())
+        
+        point_dest = transform.transform(lePointXY)
+        print(point_dest)
+        longitude = round(point_dest[0],5)
+        latitude = round(point_dest [1],5)
         self.dlg.label_3.setText(f"Longitude : {longitude}")
         
         self.dlg.label_4.setText(f"Latitude : {latitude}")
@@ -214,7 +221,12 @@ class ExtensionDeNolvides:
             if layers.type() == QgsMapLayer.VectorLayer:
                 if layers.geometryType() == 0:
                     self.dlg.comboBox.addItem(layers.name())
+        source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
+        dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
 
+        transform = QgsCoordinateTransform(
+        source_crs, dest_crs, QgsProject.instance()
+        )
         self.canvas.setMapTool(self.pointTool)
         self.pointTool.canvasClicked.connect(self.displayPoint)
 
