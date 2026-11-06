@@ -224,16 +224,27 @@ class ExtensionDeNolvides:
 
         #A mettre dans une fonction 
         couche_choisi = self.dlg.comboBox.currentText()
-        couche = QgsProject.instance().mapLayersByName(couche_choisi)
+        couches = QgsProject.instance().mapLayersByName(couche_choisi)
+        couche = couches[0]
 
         point = QgsPoint (point_dest)
         
         geom = QgsGeometry (point)
-    
-        zone_tampon = geom.buffer(5,5)
 
-        intersection=zone_tampon.intersects(geom)
-        print (intersection)
+        feats = couche.getFeatures()
+
+        it = 0
+        
+        zone_tampon = geom.buffer(5,5)
+        new_crs = QgsCoordinateReferenceSystem("EPSG:2154")
+        zone_tampon.setCrs(new_crs)
+
+        for feat in feats:
+            if feat.geometry().intersects(zone_tampon):
+                it+=1
+
+        print("géométrie de la couche",it)
+        
         #..............................................................................
         
 
