@@ -205,7 +205,6 @@ class ExtensionDeNolvides:
 
 
     def displayPoint(self, lePointXY):
-        #A mettre dans une fonction
         crs_actuel = QgsProject.instance().crs()
         dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
         
@@ -222,7 +221,7 @@ class ExtensionDeNolvides:
         self.Geocodage(longitude, latitude)
 
 
-        #A mettre dans une fonction 
+
         couche_choisi = self.dlg.comboBox.currentText()
         couches = QgsProject.instance().mapLayersByName(couche_choisi)
         couche = couches[0]
@@ -250,7 +249,7 @@ class ExtensionDeNolvides:
         dest_crs_bis = QgsCoordinateReferenceSystem("EPSG:4326")
         
         transform = QgsCoordinateTransform(crs_actuel_, dest_crs_bis, QgsProject.instance())
-        #..................................................................................
+
         
         zone_tampon.transform(transform)
 
@@ -265,8 +264,7 @@ class ExtensionDeNolvides:
 
         print("nb dobjet",it)
         
-        #..............................................................................
-        
+
 
 
         
