@@ -32,7 +32,7 @@ from qgis.core import (
     QgsWkbTypes,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
-    QgsPointXY,
+    QgsPoint,
     QgsGeometry
 
 )
@@ -198,20 +198,19 @@ class ExtensionDeNolvides:
         url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}&limit=1&type=housenumber"
         infos = requests.get(url)
         data = infos.json()
-        
+
         adresse = data["features"][0]["properties"]["label"]
-        print(adresse)
         
         return self.dlg.label_5.setText(f"Adresse : {adresse}")
 
 
     def displayPoint(self, lePointXY):
+        #A mettre dans une fonction
         crs_actuel = QgsProject.instance().crs()
-        source_crs = crs_actuel.authid()
-        source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
         dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
         
-        transform = QgsCoordinateTransform(source_crs, dest_crs, QgsProject.instance())
+        transform = QgsCoordinateTransform(crs_actuel, dest_crs, QgsProject.instance())
+        #..................................................................................
         
         point_dest = transform.transform(lePointXY)
         longitude = round(point_dest[0],5)
@@ -221,6 +220,23 @@ class ExtensionDeNolvides:
         self.dlg.label_4.setText(f"Latitude : {latitude}")
 
         self.Geocodage(longitude, latitude)
+
+
+        #A mettre dans une fonction 
+        couche_choisi = self.dlg.comboBox.currentText()
+        couche = QgsProject.instance().mapLayersByName(couche_choisi)
+
+        point = QgsPoint (point_dest)
+        
+        geom = QgsGeometry (point)
+    
+        zone_tampon = geom.buffer(5,5)
+
+        intersection=zone_tampon.intersects(geom)
+        print (intersection)
+        #..............................................................................
+        
+
 
         
 
@@ -237,17 +253,8 @@ class ExtensionDeNolvides:
             if layers.type() == QgsMapLayer.VectorLayer:
                 if layers.geometryType() == 0:
                     self.dlg.comboBox.addItem(layers.name())
-        source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
-        dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
-
-        transform = QgsCoordinateTransform(
-        source_crs, dest_crs, QgsProject.instance()
-        )
         self.canvas.setMapTool(self.pointTool)
         self.pointTool.canvasClicked.connect(self.displayPoint)
-
-        
-        
         
         # show the dialog
         self.dlg.show()
