@@ -194,6 +194,18 @@ class ExtensionDeNolvides:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def Geocodage(self, lon, lat):
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}"
+        infos = requests.get(url)
+        data = infos.json()
+        
+        
+        print(data["features"][2]["properties"]["label"])
+        adresse = data["features"][2]["properties"]["label"]
+        
+        return self.dlg.label_5.setText(f"Adresse : {adresse}")
+
+
     def displayPoint(self, lePointXY):
         source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
         dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
@@ -207,13 +219,9 @@ class ExtensionDeNolvides:
         
         self.dlg.label_4.setText(f"Latitude : {latitude}")
 
-        url = f"https://data.geopf.fr/geocodage/reverse?lat={latitude}&lon={longitude}"
-        infos = requests.get(url)
-        data = infos.json()
-        print(data)
-        adresse = None
+        self.Geocodage(longitude, latitude)
+
         
-        self.dlg.label_5.setText(f"adresse : {adresse}")
 
     def run(self):
         """Run method that performs all the real work"""
