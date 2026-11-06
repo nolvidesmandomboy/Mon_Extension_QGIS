@@ -195,13 +195,11 @@ class ExtensionDeNolvides:
             self.iface.removeToolBarIcon(action)
 
     def Geocodage(self, lon, lat):
-        url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}"
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}limit=1&type=housenumber"
         infos = requests.get(url)
         data = infos.json()
         
-        
-        print(data["features"][2]["properties"]["label"])
-        adresse = data["features"][2]["properties"]["label"]
+        adresse = data["features"][1]["properties"]["label"]
         
         return self.dlg.label_5.setText(f"Adresse : {adresse}")
 
