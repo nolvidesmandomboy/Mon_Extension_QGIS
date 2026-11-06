@@ -195,16 +195,19 @@ class ExtensionDeNolvides:
             self.iface.removeToolBarIcon(action)
 
     def Geocodage(self, lon, lat):
-        url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}limit=1&type=housenumber"
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={lat}&lon={lon}&limit=1&type=housenumber"
         infos = requests.get(url)
         data = infos.json()
         
-        adresse = data["features"][1]["properties"]["label"]
+        adresse = data["features"][0]["properties"]["label"]
+        print(adresse)
         
         return self.dlg.label_5.setText(f"Adresse : {adresse}")
 
 
     def displayPoint(self, lePointXY):
+        crs_actuel = QgsProject.instance().crs()
+        source_crs = crs_actuel.authid()
         source_crs = QgsCoordinateReferenceSystem("EPSG:2154")
         dest_crs = QgsCoordinateReferenceSystem("EPSG:4326")
         
