@@ -33,7 +33,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsPoint,
-    QgsGeometry
+    QgsGeometry,
 
 )
 import requests
@@ -227,7 +227,17 @@ class ExtensionDeNolvides:
         couches = QgsProject.instance().mapLayersByName(couche_choisi)
         couche = couches[0]
 
-        point = QgsPoint (point_dest)
+        try:
+            distance = int(self.dlg.lineEdit.text())
+            if distance <=0:
+                raise ValueError
+        except ValueError:
+            self.iface.messageBar().pushMessage(
+                "Erreur",
+                "Saissisez une distance entière positive"
+            )
+
+        point = QgsPoint (lePointXY)
         
         geom = QgsGeometry (point)
 
@@ -235,15 +245,25 @@ class ExtensionDeNolvides:
 
         it = 0
         
-        zone_tampon = geom.buffer(5,5)
-        new_crs = QgsCoordinateReferenceSystem("EPSG:2154")
-        zone_tampon.setCrs(new_crs)
+        zone_tampon = geom.buffer(distance,5)
+        crs_actuel_ = QgsCoordinateReferenceSystem("EPSG:2154")
+        dest_crs_bis = QgsCoordinateReferenceSystem("EPSG:4326")
+        
+        transform = QgsCoordinateTransform(crs_actuel_, dest_crs_bis, QgsProject.instance())
+        #..................................................................................
+        
+        zone_tampon.transform(transform)
+
+        
+        print(zone_tampon)
 
         for feat in feats:
             if feat.geometry().intersects(zone_tampon):
                 it+=1
 
-        print("géométrie de la couche",it)
+        self.dlg.label_7.setText(f"Il y a {it} objet(s) à moins de")
+
+        print("nb dobjet",it)
         
         #..............................................................................
         
